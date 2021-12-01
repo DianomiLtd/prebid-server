@@ -23,6 +23,7 @@ type Fetcher interface {
 	//
 	// The returned objects can only be read from. They may not be written to.
 	FetchRequests(ctx context.Context, requestIDs []string, impIDs []string) (requestData map[string]json.RawMessage, impData map[string]json.RawMessage, errs []error)
+	Fetch(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error)
 }
 
 type AccountFetcher interface {
@@ -65,6 +66,7 @@ func (e NotFoundError) Error() string {
 type Cache struct {
 	Requests CacheJSON
 	Imps     CacheJSON
+	Resps    CacheJSON
 	Accounts CacheJSON
 }
 type CacheJSON interface {
@@ -186,6 +188,29 @@ func (f *fetcherWithCache) FetchRequests(ctx context.Context, requestIDs []strin
 
 		requestData = mergeData(requestData, fetcherReqData)
 		impData = mergeData(impData, fetcherImpData)
+	}
+
+	return
+}
+
+func (f *fetcherWithCache) Fetch(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
+	data = f.cache.Resps.Get(ctx, ids)
+
+	// Fixes #311
+	leftoverResp := findLeftovers(ids, data)
+
+	// Record cache hits for stored responses
+	//f.metricsEngine.RecordStoredReqCacheResult(metrics.CacheHit, len(ids)-len(leftoverResp))
+	// Record cache misses for stored responses
+	//f.metricsEngine.RecordStoredImpCacheResult(metrics.CacheMiss, len(leftoverResp))
+
+	if len(leftoverResp) > 0 {
+		fetcherRespData, fetcherErrs := f.fetcher.Fetch(ctx, leftoverResp)
+		errs = fetcherErrs
+
+		f.cache.Resps.Save(ctx, fetcherRespData)
+
+		data = mergeData(data, fetcherRespData)
 	}
 
 	return

@@ -1342,6 +1342,10 @@ func (cf mockVideoStoredReqFetcher) FetchRequests(ctx context.Context, requestID
 	return testVideoStoredRequestData, testVideoStoredImpData, nil
 }
 
+func (cf mockVideoStoredReqFetcher) Fetch(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 type mockExchangeVideo struct {
 	lastRequest *openrtb2.BidRequest
 	cache       *mockCacheClient

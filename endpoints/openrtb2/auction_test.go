@@ -3716,6 +3716,10 @@ func (cf mockStoredReqFetcher) FetchRequests(ctx context.Context, requestIDs []s
 	return testStoredRequestData, testStoredImpData, nil
 }
 
+func (cf mockStoredReqFetcher) Fetch(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 type mockExchange struct {
 	lastRequest *openrtb2.BidRequest
 }

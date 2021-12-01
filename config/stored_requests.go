@@ -341,12 +341,23 @@ func (cfg *PostgresFetcherQueries) MakeQuery(numReqs int, numImps int) (query st
 	return resolve(cfg.QueryTemplate, numReqs, numImps)
 }
 
+func (cfg *PostgresFetcherQueries) MakeQuerySingleArray(numIds int) (query string) {
+	return resolveSingleArrayQuery(cfg.QueryTemplate, numIds)
+}
+
 func resolve(template string, numReqs int, numImps int) (query string) {
 	numReqs = ensureNonNegative("Request", numReqs)
 	numImps = ensureNonNegative("Imp", numImps)
 
 	query = strings.Replace(template, "%REQUEST_ID_LIST%", makeIdList(0, numReqs), -1)
 	query = strings.Replace(query, "%IMP_ID_LIST%", makeIdList(numReqs, numImps), -1)
+	return
+}
+
+func resolveSingleArrayQuery(template string, numIds int) (query string) {
+	numIds = ensureNonNegative("Response", numIds)
+
+	query = strings.Replace(template, "%ID_LIST%", makeIdList(0, numIds), -1)
 	return
 }
 
@@ -401,6 +412,8 @@ type InMemoryCache struct {
 	RequestCacheSize int `mapstructure:"request_cache_size_bytes"`
 	// ImpCacheSize is the max number of bytes allowed in the cache for Stored Imps. Values <= 0 will have no limit
 	ImpCacheSize int `mapstructure:"imp_cache_size_bytes"`
+	// ResponsesCacheSize is the max number of bytes allowed in the cache for Stored Responses. Values <= 0 will have no limit
+	RespCacheSize int `mapstructure:"resp_cache_size_bytes"`
 }
 
 func (cfg *InMemoryCache) validate(dataType DataType, errs []error) []error {

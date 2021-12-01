@@ -272,6 +272,10 @@ func (f *mockFetcher) FetchRequests(ctx context.Context, requestIDs []string, im
 	return args.Get(0).(map[string]json.RawMessage), args.Get(1).(map[string]json.RawMessage), args.Get(2).([]error)
 }
 
+func (f *mockFetcher) Fetch(ctx context.Context, ids []string) (data map[string]json.RawMessage, errs []error) {
+	return nil, nil
+}
+
 func (a *mockFetcher) FetchAccount(ctx context.Context, accountID string) (json.RawMessage, []error) {
 	args := a.Called(ctx, accountID)
 	return args.Get(0).(json.RawMessage), args.Get(1).([]error)
