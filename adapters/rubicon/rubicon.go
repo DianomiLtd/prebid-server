@@ -1076,8 +1076,9 @@ func (a *RubiconAdapter) MakeBids(internalRequest *openrtb2.BidRequest, external
 				}
 
 				bidResponse.Bids = append(bidResponse.Bids, &adapters.TypedBid{
-					Bid:     &ortbBid,
-					BidType: bidType,
+					Bid:      &ortbBid,
+					BidType:  bidType,
+					OrigSeat: sb.Seat,
 				})
 			}
 		}
